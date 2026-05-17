@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DRYMIX Calculator</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f97316">
+    <link rel="apple-touch-icon" href="drymix_new.png">
+
+    <style>
+        :root {
+            --primary: #f97316; --primary-hover: #ea580c; --bg: #f8fafc;
+            --card: #ffffff; --text-main: #1f2937; --text-muted: #6b7280;
+            --border: #e5e7eb; --blue: #2563eb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+        body { background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
+        
+        .container { width: 100%; max-width: 900px; background: var(--card); border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
+        .header { padding: 24px; text-align: center; border-bottom: 1px solid var(--border); }
+        .header img { height: 70px; object-fit: contain; margin-bottom: 12px; }
+        .header h1 { font-size: 24px; font-weight: 700; color: var(--text-main); }
+        .header p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+        
+        .content-wrapper { display: flex; flex-direction: column; }
+        @media (min-width: 768px) { .content-wrapper { flex-direction: row; } }
+        
+        .input-section, .result-section { padding: 24px; width: 100%; }
+        @media (min-width: 768px) { 
+            .input-section { width: 55%; } 
+            .result-section { width: 45%; border-left: 1px solid var(--border); background-color: #f9fafb; } 
+        }
+        @media (max-width: 767px) { .result-section { border-top: 1px solid var(--border); background-color: #f9fafb; } }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; }
+        input, select { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; background: #f9fafb; font-size: 15px; color: var(--text-main); outline: none; transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1); background: white; }
+        
+        .row { display: flex; gap: 16px; }
+        .row > div:first-child { flex: 2; }
+        .row > div:last-child { flex: 1; }
+        
+        .input-with-icon { position: relative; }
+        .input-with-icon input { padding-left: 40px; }
+        .input-with-icon span { position: absolute; left: 14px; top: 12px; color: #9ca3af; font-weight: 500; }
+        .hint { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+        .btn { width: 100%; background: var(--primary); color: white; font-weight: 700; font-size: 16px; padding: 14px; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
+
+        .res-header { font-size: 16px; font-weight: 700; color: var(--text-main); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 20px; }
+        .res-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .res-label { font-size: 14px; font-weight: 500; color: var(--text-muted); }
+        .res-value { font-size: 14px; font-weight: 700; color: var(--text-main); text-align: right; max-width: 60%; }
+        
+        .divider { height: 1px; background: var(--border); margin: 20px 0; }
+        
+        .highlight-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .highlight-label { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .highlight-value { font-size: 24px; font-weight: 900; color: var(--blue); }
+        .highlight-unit { font-size: 14px; font-weight: 700; color: var(--blue); margin-left: 4px; }
+        .exact-val { font-size: 12px; color: #9ca3af; text-align: right; margin-bottom: 16px; }
+
+        .total-box { background: white; padding: 16px; border-radius: 12px; border: 1px solid #ffedd5; display: flex; justify-content: space-between; align-items: center; }
+        .total-label { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .total-value { font-size: 24px; font-weight: 900; color: var(--primary); }
+        .total-unit { font-size: 14px; font-weight: 700; color: var(--primary); margin-left: 4px; }
+
+        .footer { background: #f1f5f9; padding: 16px; text-align: center; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-muted); }
+        .footer span { font-weight: 700; color: #475569; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <img src="image_94045f.png" alt="DRYMIX Logo">
+            <h1>Consumption Calculator</h1>
+            <p>Calculate coverage and cost for your projects</p>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="input-section">
+                <div class="form-group">
+                    <label>Select Product</label>
+                    <select id="productSelect"></select>
+                </div>
+
+                <div class="form-group row">
+                    <div>
+                        <label>Total Area</label>
+                        <input type="number" id="areaInput" placeholder="e.g. 150">
+                    </div>
+                    <div>
+                        <label>Unit</label>
+                        <select id="unitSelect">
+                            <option value="sqm">sq m²</option>
+                            <option value="sqft">sq ft²</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Price per Bag (MMK)</label>
+                    <div class="input-with-icon">
+                        <span>Ks</span>
+                        <input type="number" id="priceInput">
+                    </div>
+                    <p class="hint">* You can modify the pre-filled price if needed.</p>
+                </div>
+
+                <button class="btn" onclick="calculate()">Calculate Now</button>
+            </div>
+
+            <div class="result-section">
+                <div class="res-header">Calculation Result</div>
+                
+                <div class="res-item">
+                    <span class="res-label">Selected Product</span>
+                    <span class="res-value" id="resProduct">-</span>
+                </div>
+                <div class="res-item">
+                    <span class="res-label">Pack Size</span>
+                    <span class="res-value" id="resPacksize">-</span>
+                </div>
+                <div class="res-item">
+                    <span class="res-label">Target Area</span>
+                    <span class="res-value" id="resArea">-</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="highlight-row">
+                    <span class="highlight-label">Required Bags</span>
+                    <div>
+                        <span class="highlight-value" id="resBags">0</span>
+                        <span class="highlight-unit">bags</span>
+                    </div>
+                </div>
+                <div class="exact-val" id="resExactBags">Exact: 0.00 bags</div>
+
+                <div class="total-box">
+                    <span class="total-label">Total Cost</span>
+                    <div>
+                        <span class="total-value" id="resTotalCost">0</span>
+                        <span class="total-unit">MMK</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Developed by <span>Universal Tractor Co., Ltd.</span>
+        </div>
+    </div>
+
+    <script>
+        const productsData = [
+            { id: 1, name: "Drymix Thinbed TB 100", packsize: 40, coverage: 10, price: 60000 },
+            { id: 2, name: "Drymix Plester D200", packsize: 40, coverage: 2, price: 52000 },
+            { id: 3, name: "Drymix Skimcoat S200", packsize: 30, coverage: 10, price: 79500 },
+            { id: 4, name: "Drymix Tile Adhesive Standard T100", packsize: 25, coverage: 5, price: 53750 },
+            { id: 5, name: "Drymix Tile Adhesive Plus @325", packsize: 25, coverage: 5, price: 56250 },
+         ];
+
+        const productSelect = document.getElementById('productSelect');
+        const priceInput = document.getElementById('priceInput');
+
+        productsData.forEach(product => {
+            let option = document.createElement('option');
+            option.value = product.id;
+            option.text = `${product.name} (${product.coverage} m²/bag)`;
+            productSelect.appendChild(option);
+        });
+
+        productSelect.addEventListener('change', function() {
+            const product = productsData.find(p => p.id === parseInt(this.value));
+            if(product) priceInput.value = product.price;
+        });
+        productSelect.dispatchEvent(new Event('change'));
+
+        function calculate() {
+            const product = productsData.find(p => p.id === parseInt(productSelect.value));
+            let area = parseFloat(document.getElementById('areaInput').value);
+            const unit = document.getElementById('unitSelect').value;
+            let currentPrice = parseFloat(priceInput.value);
+
+            if (!area || area <= 0) return alert("Please enter a valid total area.");
+            if (isNaN(currentPrice) || currentPrice < 0) return alert("Please enter a valid price.");
+
+            let areaInM2 = unit === 'sqft' ? area * 0.092903 : area;
+            let displayArea = unit === 'sqft' ? `${area} ft² (${areaInM2.toFixed(2)} m²)` : `${area} m²`;
+
+            let exactBags = areaInM2 / product.coverage;
+            let roundedBags = Math.ceil(exactBags);
+            let totalCost = roundedBags * currentPrice;
+
+            document.getElementById('resProduct').innerText = product.name;
+            document.getElementById('resPacksize').innerText = `${product.packsize} kg`;
+            document.getElementById('resArea').innerText = displayArea;
+            document.getElementById('resBags').innerText = roundedBags.toLocaleString();
+            document.getElementById('resExactBags').innerText = `Exact: ${exactBags.toFixed(2)} bags`;
+            document.getElementById('resTotalCost').innerText = totalCost.toLocaleString();
+        }
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
+            });
+        }
+    </script>
+</body>
+</html>
