@@ -24,6 +24,23 @@
         .header h1 { font-size: 24px; font-weight: 700; color: var(--text-main); }
         .header p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
         
+        /* Install Button Style */
+        #installAppBtn {
+            display: none; /* အစပိုင်းမှာ ဖျောက်ထားပါမည် */
+            background: #10b981; 
+            color: white; 
+            border: none; 
+            padding: 10px 24px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            font-size: 15px;
+            cursor: pointer; 
+            margin: 16px auto 0; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+        #installAppBtn:hover { background: #059669; transform: translateY(-2px); }
+
         .content-wrapper { display: flex; flex-direction: column; }
         @media (min-width: 768px) { .content-wrapper { flex-direction: row; } }
         
@@ -80,6 +97,8 @@
             <img src="drymix_new.png" alt="DRYMIX Logo">
             <h1>Consumption Calculator</h1>
             <p>Calculate coverage and cost for your projects</p>
+            
+            <button id="installAppBtn">⬇️ Install App on Phone</button>
         </div>
 
         <div class="content-wrapper">
@@ -97,8 +116,8 @@
                     <div>
                         <label>Unit</label>
                         <select id="unitSelect">
-                            <option value="sqm">m²</option>
-                            <option value="sqft">ft²</option>
+                            <option value="sqm">sq m²</option>
+                            <option value="sqft">sq ft²</option>
                         </select>
                     </div>
                 </div>
@@ -159,12 +178,18 @@
 
     <script>
         const productsData = [
-            { id: 1, name: "Drymix Thinbed TB 100", packsize: 40, coverage: 10, price: 60000 },
-            { id: 2, name: "Drymix Plester D200", packsize: 40, coverage: 2, price: 52000 },
-            { id: 3, name: "Drymix Skimcoat S200", packsize: 30, coverage: 10, price: 79500 },
-            { id: 4, name: "Drymix Tile Adhesive Standard T100", packsize: 25, coverage: 5, price: 53750 },
-            { id: 5, name: "Drymix Tile Adhesive Plus @325", packsize: 25, coverage: 5, price: 56250 },
-         ];
+            { id: 1, name: "Drymix Thinbed TB 100", packsize: 40, coverage: 10, price: 12000 },
+            { id: 2, name: "Drymix Plester D200", packsize: 40, coverage: 2, price: 10000 },
+            { id: 3, name: "Drymix Acian S100", packsize: 30, coverage: 10, price: 11000 },
+            { id: 4, name: "Drymix Skimcoat S200", packsize: 30, coverage: 10, price: 13000 },
+            { id: 5, name: "Drymix Tile Adhesive Keramik T99", packsize: 25, coverage: 5, price: 15000 },
+            { id: 6, name: "Drymix Tile Adhesive Standard T100", packsize: 25, coverage: 5, price: 16000 },
+            { id: 7, name: "Drymix Tile Adhesive Plus @325", packsize: 25, coverage: 5, price: 18000 },
+            { id: 8, name: "Drymix Floorscreeed LE", packsize: 50, coverage: 2.5, price: 20000 },
+            { id: 9, name: "Drymix Tile Grout Sanitized (30*30 cm)", packsize: 1, coverage: 3, price: 3500 },
+            { id: 10, name: "Drymix Tile Grout Sanitized (40*40 cm)", packsize: 1, coverage: 4, price: 3500 },
+            { id: 11, name: "Drymix Tile Grout Sanitized (60*60 cm)", packsize: 1, coverage: 5, price: 3500 }
+        ];
 
         const productSelect = document.getElementById('productSelect');
         const priceInput = document.getElementById('priceInput');
@@ -206,12 +231,45 @@
             document.getElementById('resTotalCost').innerText = totalCost.toLocaleString();
         }
 
-        // PWA Service Worker Registration
+        // ==========================================
+        // PWA Service Worker & Install Logic
+        // ==========================================
+        let deferredPrompt;
+        const installAppBtn = document.getElementById('installAppBtn');
+
+        // Service Worker မှတ်ပုံတင်ခြင်း
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
             });
         }
+
+        // Install လုပ်လို့ရတဲ့ ဖုန်း (Android/Chrome) ဆိုရင် ခလုတ်ကို ဖော်ပြမည်
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); // Browser ရဲ့ မူလ Prompt ကို တားထားမည်
+            deferredPrompt = e; // Event ကို သိမ်းထားမည်
+            installAppBtn.style.display = 'block'; // Install ခလုတ်လေးကို ဖော်ပြမည်
+        });
+
+        // ခလုတ်နှိပ်လိုက်လျှင် Install လုပ်မည့် Prompt ပေါ်လာစေရန်
+        installAppBtn.addEventListener('click', async () => {
+            if (deferredPrompt !== null) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the A2HS prompt');
+                } else {
+                    console.log('User dismissed the A2HS prompt');
+                }
+                deferredPrompt = null;
+                installAppBtn.style.display = 'none'; // Install နှိပ်ပြီးပါက ခလုတ်ကို ပြန်ဖျောက်မည်
+            }
+        });
+
+        // App ကို Install လုပ်ပြီးသားဆိုရင် ခလုတ်ကို ဖျောက်ထားမည်
+        window.addEventListener('appinstalled', () => {
+            installAppBtn.style.display = 'none';
+        });
     </script>
 </body>
 </html>
