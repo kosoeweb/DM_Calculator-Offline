@@ -116,8 +116,8 @@
                     <div>
                         <label>Unit</label>
                         <select id="unitSelect">
-                            <option value="sqm">sq m²</option>
-                            <option value="sqft">sq ft²</option>
+                            <option value="sqm">m²</option>
+                            <option value="sqft">ft²</option>
                         </select>
                     </div>
                 </div>
@@ -178,18 +178,12 @@
 
     <script>
         const productsData = [
-            { id: 1, name: "Drymix Thinbed TB 100", packsize: 40, coverage: 10, price: 12000 },
-            { id: 2, name: "Drymix Plester D200", packsize: 40, coverage: 2, price: 10000 },
-            { id: 3, name: "Drymix Acian S100", packsize: 30, coverage: 10, price: 11000 },
-            { id: 4, name: "Drymix Skimcoat S200", packsize: 30, coverage: 10, price: 13000 },
-            { id: 5, name: "Drymix Tile Adhesive Keramik T99", packsize: 25, coverage: 5, price: 15000 },
-            { id: 6, name: "Drymix Tile Adhesive Standard T100", packsize: 25, coverage: 5, price: 16000 },
-            { id: 7, name: "Drymix Tile Adhesive Plus @325", packsize: 25, coverage: 5, price: 18000 },
-            { id: 8, name: "Drymix Floorscreeed LE", packsize: 50, coverage: 2.5, price: 20000 },
-            { id: 9, name: "Drymix Tile Grout Sanitized (30*30 cm)", packsize: 1, coverage: 3, price: 3500 },
-            { id: 10, name: "Drymix Tile Grout Sanitized (40*40 cm)", packsize: 1, coverage: 4, price: 3500 },
-            { id: 11, name: "Drymix Tile Grout Sanitized (60*60 cm)", packsize: 1, coverage: 5, price: 3500 }
-        ];
+            { id: 1, name: "Drymix Thinbed TB 100", packsize: 40, coverage: 10, price: 60000 },
+            { id: 2, name: "Drymix Plester D200", packsize: 40, coverage: 2, price: 52000 },
+            { id: 4, name: "Drymix Skimcoat S200", packsize: 30, coverage: 10, price: 79500 },
+            { id: 6, name: "Drymix Tile Adhesive Standard T100", packsize: 25, coverage: 5, price: 53750 },
+            { id: 7, name: "Drymix Tile Adhesive Plus @325", packsize: 25, coverage: 5, price: 56250 },
+         ];
 
         const productSelect = document.getElementById('productSelect');
         const priceInput = document.getElementById('priceInput');
